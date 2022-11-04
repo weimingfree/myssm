@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--xmlns:xml namespace-->
+<!--对于命名空间的标识符, URI 的作用仅仅是保证唯一性， 它并不需要对应一个可以访问的资源或文件 ！
+ 但是， 有很多公司都会让 namespace 的 URL 指向一个包含该命名空间信息的网页-->
+<!--XML解析器可以根据一个XSD文件的内容来解析另一个XML文件， 判断该文件的结构是否和 XSD 文件中定义的一致.
+XSD 文件 可以理解为 XML 文档可以自定义的语法或格式检查器。-->
+<!--xsi 已经成为了一个业界默认的用于 XSD(（XML Schema Definition)文件的命名空间。
+XSD 文件（也常常称为 Schema 文件）是用来定义 xml 文档结构的。-->
+<!--xsi:schemaLocation = "键" “值”,"键"：用来唯一标识一个命名空间的网址,“值”：指代 【XSD location URI】,
+这个值指示了前一个命名空间所对应的 XSD 文件的位置，
+xml parser 可以利用这个信息获取到 XSD 文件，
+从而通过 XSD 文件对该自定义标识(即命名空间)的元素结构进行校验，因此这个值必然是可以访问的，
+且访问到的内容是一个 XSD 文件的内容。-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+    <!--读取jdbc.properties的属性文件-->
+    <!--在开发阶段我们连接数据库时的url，username，password等信息分布式应用中client端的server地址，端口等
+        这些参数在不同阶段之间又住住需要改变
+        期望：有一种方案可以方便我们在一个阶段内不需要频繁写一个参数的值，而在不同阶段间又可以方便的切换参数的配置信息-->
+    <context:property-placeholder location="classpath:jdbc.properties"></context:property-placeholder>
+    <!--创建数据源-->
+    <bean id = "dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"></property>
+        <property name="url" value="${jdbc.url}"></property>
+        <property name="username" value="${jdbc.username}"></property>
+        <property name="password" value="20020913Xj!"></property>
+    </bean>
+    <!--创建SqlSessionFactoryBean 有两个作用(1)：引入数据库连接池。(2)：绑定Mybatis核心配置文件-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--配置数据源-->
+        <property name="dataSource" ref="dataSource"></property>
+        <!--配置MyBatis的核心配置文件-->
+        <property name="configLocation" value="classpath:SqlMapConfig.xml"></property>
+        <!--配置实体类-->
+        <property name="typeAliasesPackage" value="cn.xj.pojo"></property>
+    </bean>
+
+    <!--创建mapper文件的扫描器-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="cn.xj.mapper"></property>
+    </bean>
+</beans>
